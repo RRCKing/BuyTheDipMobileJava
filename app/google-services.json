@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "664546983745",
+    "project_id": "buythedipapp",
+    "storage_bucket": "buythedipapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:664546983745:android:67320b93c8a6bf2a9b6bc0",
+        "android_client_info": {
+          "package_name": "com.kingchan.buythedip"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "664546983745-ha9mhhpcouhvmvn0ai0lbfq72cs0v83r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQP-sbM0SxqjpTFdUcuT5Zzvb3H2O_Jvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "664546983745-ha9mhhpcouhvmvn0ai0lbfq72cs0v83r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
