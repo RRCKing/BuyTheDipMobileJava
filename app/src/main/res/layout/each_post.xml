@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!-- Posts in Card View -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,6 +22,7 @@
             android:layout_height="match_parent"
             android:background="@color/white">
 
+            <!-- User Profile Pic -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_pic"
                 android:layout_width="50dp"
@@ -31,6 +33,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- User Name -->
             <TextView
                 android:id="@+id/username_tv"
                 android:layout_width="wrap_content"
@@ -43,6 +46,7 @@
                 app:layout_constraintStart_toEndOf="@+id/profile_pic"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Date Text View -->
             <TextView
                 android:id="@+id/date_tv"
                 android:layout_width="wrap_content"
@@ -55,6 +59,7 @@
                 app:layout_constraintStart_toEndOf="@+id/profile_pic"
                 app:layout_constraintTop_toBottomOf="@+id/username_tv" />
 
+            <!-- Image -->
             <ImageView
                 android:id="@+id/user_post"
                 android:layout_width="0dp"
@@ -66,6 +71,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_pic"
                 app:srcCompat="@drawable/rectangle" />
 
+            <!-- Caption Text View -->
             <TextView
                 android:id="@+id/caption_tv"
                 android:layout_width="wrap_content"
@@ -78,6 +84,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/user_post" />
 
+            <!-- Like icon button -->
             <ImageView
                 android:id="@+id/like_btn"
                 android:layout_width="30dp"
@@ -88,6 +95,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/caption_tv"
                 app:srcCompat="@drawable/before_liked" />
 
+            <!-- Like Counts -->
             <TextView
                 android:id="@+id/like_count_tv"
                 android:layout_width="wrap_content"
@@ -100,6 +108,7 @@
                 app:layout_constraintStart_toEndOf="@+id/like_btn"
                 app:layout_constraintTop_toTopOf="@+id/like_btn" />
 
+            <!-- Comments button -->
             <ImageView
                 android:id="@+id/comments_post"
                 android:layout_width="wrap_content"
@@ -111,6 +120,7 @@
                 app:layout_constraintTop_toTopOf="@+id/like_count_tv"
                 app:srcCompat="@drawable/comments" />
 
+            <!-- Delete button -->
             <ImageButton
                 android:id="@+id/delete_btn"
                 android:layout_width="wrap_content"

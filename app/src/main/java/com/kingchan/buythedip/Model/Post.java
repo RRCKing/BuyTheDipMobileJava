@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class Post extends PostId {
 
+    // Need to match AddPostActivity - PostMap
     private String image , user , caption;
     private Date time;
 

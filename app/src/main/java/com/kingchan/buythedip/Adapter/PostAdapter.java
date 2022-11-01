@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kingchan.buythedip.CommentsActivity;
+import com.kingchan.buythedip.MainActivity;
 import com.kingchan.buythedip.Model.Post;
 
 import java.util.Date;
@@ -42,6 +44,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import com.kingchan.buythedip.Model.Users;
 import com.kingchan.buythedip.R;
+import com.kingchan.buythedip.UpdatePostActivity;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
@@ -154,19 +157,25 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         // Delete - 13
         if (currentUserId.equals(post.getUser())){
+            // Show delete button
             holder.deleteBtn.setVisibility(View.VISIBLE);
+            // Set it clickable
             holder.deleteBtn.setClickable(true);
+            // Set on click event
             holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // Prompt alert box
                     AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                    // Set the alert box
                     alert.setTitle("Delete")
                             .setMessage("Are You Sure ?")
                             .setNegativeButton("No" , null)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                // When click yes
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
+                                    // Delete the comments
                                     firestore.collection("Posts/" + postId + "/Comments").get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                 @Override
@@ -176,6 +185,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                                     }
                                                 }
                                             });
+                                    // Delete the likes
                                     firestore.collection("Posts/" + postId + "/Likes").get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                 @Override
@@ -185,8 +195,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                                     }
                                                 }
                                             });
+                                    // Delete the post
                                     firestore.collection("Posts").document(postId).delete();
+                                    // Remove the position of the post list
                                     mList.remove(position);
+                                    // Trigger it to the adapter
                                     notifyDataSetChanged();
                                 }
                             });
@@ -196,11 +209,26 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         }
     }
 
+    // Edit function
+    public void updateData(int position){
+        // Model item = mList.get(position);
+        Post post = mList.get(position);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("uId", post.PostId);
+        bundle.putString("uCaption", post.getCaption());
+        bundle.putString("uPostImage", post.getImage());
+        Intent intent = new Intent(context, UpdatePostActivity.class);
+        intent.putExtras(bundle);
+        context.startActivity(intent);
+    }
+
     @Override
     public int getItemCount() {
         return mList.size();
     }
 
+    // For Reading or View Post in Main Activity
     public class PostViewHolder extends RecyclerView.ViewHolder{
         ImageView postPic , commentsPic , likePic;
         CircleImageView profilePic ;

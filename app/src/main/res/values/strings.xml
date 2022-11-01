@@ -11,6 +11,7 @@
     <string name="username">Enter Your Name</string>
     <string name="save">Save</string>
     <string name="add_post">Add Post</string>
+    <string name="update_post">Update Post</string>
     <string name="enter_caption">Write Caption here ....</string>
     <string name="add_comment">Add Comment</string>
     <string name="write_Comment">Write Your Comment</string>
