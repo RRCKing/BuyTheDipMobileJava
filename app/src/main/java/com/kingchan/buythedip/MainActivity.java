@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,6 +40,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Set the firebase and firestore variables
     private FirebaseAuth firebaseAuth;
     private Toolbar mainToolbar;
     private FirebaseFirestore firestore;
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this , AddPostActivity.class));
             }
         });
+
         // Retrieve Posts - 8
         if (firebaseAuth.getCurrentUser() != null){
 
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Users users = task.getResult().toObject(Users.class);
                                                 usersList.add(users);
                                                 list.add(post);
+                                                // Set the data to the adapter
                                                 adapter.notifyDataSetChanged();
                                             }else{
                                                 Toast.makeText(MainActivity.this, task.getException().getMessage() , Toast.LENGTH_SHORT).show();
@@ -134,9 +138,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        // Swipe to Edit
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new TouchHelper(adapter));
+        touchHelper.attachToRecyclerView(mRecyclerView);
     }
 
-
+    // Get the user
     @Override
     protected void onStart() {
         super.onStart();
@@ -161,12 +169,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Get the menu for Sign out
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu , menu);
         return true;
     }
 
+    // Set when option selected e.g. Profile or Sign Out
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.profile_menu){
