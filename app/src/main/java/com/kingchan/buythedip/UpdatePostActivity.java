@@ -1,5 +1,6 @@
 package com.kingchan.buythedip;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.annotation.NonNull;
@@ -7,6 +8,7 @@ import androidx.annotation.NonNull;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,12 +19,20 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -35,8 +45,11 @@ public class UpdatePostActivity extends AppCompatActivity {
     private String uPostImage;
     private CircleImageView circleImageView;
     private TextView mProfileName;
+    private Uri postImageUri = null;
+    // Post Image
+    private ImageView postPicture;
 
-    private FirebaseFirestore db;
+    //private FirebaseFirestore db;
 
     // Crop images
     private Uri mImageUri = null;
@@ -47,15 +60,12 @@ public class UpdatePostActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String userId;
 
-    // Post Image
-    private ImageView postPicture;
+    private long lastClickTime = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_post);
-
-        db = FirebaseFirestore.getInstance();
 
         // Firestore
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -87,6 +97,19 @@ public class UpdatePostActivity extends AppCompatActivity {
             }
         });
 
+        // Trigger CropImage when clicking the picture
+        postPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Picking image from the photo gallery
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setAspectRatio(3,2)
+                        .setMinCropResultSize(512,512)
+                        .start(UpdatePostActivity.this);
+            }
+        });
+
         // Get data from the bundles
         Bundle bundle = getIntent().getExtras();
         if (bundle != null){
@@ -105,36 +128,74 @@ public class UpdatePostActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                // preventing double, using threshold of 1000 ms
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000){
+                    return;
+                }
+
+                // Get the changed edited text
                 String caption = editCaption.getText().toString();
 
-                Bundle tmp_bundle = getIntent().getExtras();
-                if(tmp_bundle != null){
-                    String id = uId;
-                    updateToFireStore(id, caption);
+                if (postImageUri != null){
+                    // Use storage reference to make the post reference
+                    StorageReference postRef = storageReference.child("post_images").child(FieldValue.serverTimestamp().toString() + ".jpg");
+
+                    // Put the postImageUri to the post reference
+                    postRef.putFile(postImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful()){
+                                postRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>(){
+                                    @Override
+                                    public void onSuccess(Uri uri){
+                                        // making a Hash Map called postMap, adding all information there
+                                        HashMap<String , Object> postMap = new HashMap<>();
+                                        postMap.put("image" , uri.toString());
+                                        postMap.put("user" , userId);
+                                        postMap.put("caption" , caption);
+                                        postMap.put("time" , FieldValue.serverTimestamp());
+
+                                        // Put the postMap to the firestore.collection.add method, to the Posts table
+                                        firestore.collection("Posts").document(uId).update(postMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                // If complete and successful
+                                                if (task.isSuccessful()){
+                                                    // Show successful text
+                                                    Toast.makeText(UpdatePostActivity.this, "Post Updated Successfully !!", Toast.LENGTH_SHORT).show();
+                                                    // Go back to MainActivity
+                                                    startActivity(new Intent(UpdatePostActivity.this , MainActivity.class));
+                                                    // finish all storage
+                                                    finish();
+                                                }else{
+                                                    Toast.makeText(UpdatePostActivity.this, task.getException().toString() , Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             }
         });
     }
 
-    // Update to firestore core function
-    private void updateToFireStore(String id , String caption){
+    // Set the postImageUri and the postPicture
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK){
 
-        db.collection("Posts").document(id).update("caption" , caption)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            Toast.makeText(UpdatePostActivity.this, "Data Updated!!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent());
-                        }else{
-                            Toast.makeText(UpdatePostActivity.this, "Error : " + task.getException().getMessage() , Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(UpdatePostActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                postImageUri = result.getUri();
+                postPicture.setImageURI(postImageUri);
+            }else if(resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
+                Toast.makeText(this, result.getError().toString(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

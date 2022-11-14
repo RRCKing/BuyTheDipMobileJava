@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +43,7 @@ public class AddPostActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String currentUserId;
     private Toolbar postToolbar;
+    private long lastClickTime = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,12 @@ public class AddPostActivity extends AppCompatActivity {
         mAddPostBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // preventing double, using threshold of 1000 ms
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000){
+                    return;
+                }
+
                 // Show Progress Bar
                 mProgressBar.setVisibility(View.VISIBLE);
                 // Set the Caption Text as a variable
