@@ -66,6 +66,18 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_pic"
                 app:srcCompat="@drawable/rectangle" />
 
+            <Spinner
+                android:id="@+id/store_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
+                android:minHeight="48dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/user_post" />
+
+
             <EditText
                 android:id="@+id/caption_text"
                 android:layout_width="0dp"
@@ -81,7 +93,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/user_post" />
+                app:layout_constraintTop_toBottomOf="@+id/store_spinner" />
+
 
             <Button
                 android:id="@+id/edit_post_btn"
@@ -95,7 +108,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/caption_text" />
+                app:layout_constraintTop_toBottomOf="@+id/store_spinner" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -68,14 +68,13 @@ public class CommentsActivity extends AppCompatActivity {
         // Retrieving User -12
         usersList = new ArrayList<>();
         adapter = new CommentsAdapter(CommentsActivity.this , mList, usersList);
-        //adapter = new CommentsAdapter(CommentsActivity.this , mList , usersList);
 
         mCommentRecyclerView.setHasFixedSize(true);
         mCommentRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Adding Comments - 11
         mCommentRecyclerView.setAdapter(adapter);
 
-        // Adding Comments - 11
+        // Fetching Comments - 11
         firestore.collection("Posts/" + post_id + "/Comments").addSnapshotListener(CommentsActivity.this , new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -108,6 +107,7 @@ public class CommentsActivity extends AppCompatActivity {
             }
         });
 
+        // Adding Comment to Firestore
         mAddCommentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,24 +130,6 @@ public class CommentsActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(CommentsActivity.this, "Please write Comment", Toast.LENGTH_SHORT).show();
                 }
-                /*if (!comment.isEmpty()) {
-                    Map<String, Object> commentsMap = new HashMap<>();
-                    commentsMap.put("comment", comment);
-                    commentsMap.put("time", FieldValue.serverTimestamp());
-                    commentsMap.put("user", currentUserId);
-                    firestore.collection("Posts/" + post_id + "/Comments").add(commentsMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentReference> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(CommentsActivity.this, "Comment Added", Toast.LENGTH_SHORT).show();
-                            }else{
-                                Toast.makeText(CommentsActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(CommentsActivity.this, "Please write Comment", Toast.LENGTH_SHORT).show();
-                }*/
             }
         });
     }

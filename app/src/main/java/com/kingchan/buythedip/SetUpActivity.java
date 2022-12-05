@@ -99,41 +99,7 @@ public class SetUpActivity extends AppCompatActivity {
             }
         });
 
-        mSaveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                String name = mProfileName.getText().toString();
-                StorageReference imageRef = storageReference.child("Profile_pics").child(Uid + ".jpg");
-                if (isPhotoSelected) {
-                    if (!name.isEmpty() && mImageUri != null) {
-                        imageRef.putFile(mImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            saveToFireStore(task, name, uri);
-                                        }
-                                    });
-
-                                } else {
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    Toast.makeText(SetUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    } else {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(SetUpActivity.this, "Please Select picture and write your name", Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    saveToFireStore(null , name , mImageUri);
-                }
-            }
-        });
-
+        // Save the change
         mSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

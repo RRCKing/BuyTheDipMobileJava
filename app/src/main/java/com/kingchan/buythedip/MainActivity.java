@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     // Retrieving User - 12
     private List<Users> usersList;
 
+    // Search
+    private SearchView searchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         //setSupportActionBar(mainToolbar);
         getSupportActionBar().setTitle("Buy The Dip");
 
-
         // Add Post - 6
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,38 +109,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             query = firestore.collection("Posts").orderBy("time" , Query.Direction.DESCENDING);
-            // The SnapshortListener gives us all the data inside that post
-            listenerRegistration = query.addSnapshotListener(MainActivity.this, new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                    for (DocumentChange doc : value.getDocumentChanges()){
-                        if (doc.getType() == DocumentChange.Type.ADDED){
-                            String postId = doc.getDocument().getId();
-                            Post post = doc.getDocument().toObject(Post.class).withId(postId);
-                            String postUserId = doc.getDocument().getString("user");
-                            firestore.collection("Users").document(postUserId).get()
-                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                Users users = task.getResult().toObject(Users.class);
-                                                usersList.add(users);
-                                                list.add(post);
-                                                // Set the data to the adapter
-                                                adapter.notifyDataSetChanged();
-                                            }else{
-                                                Toast.makeText(MainActivity.this, task.getException().getMessage() , Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
 
-                        }else{
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                    listenerRegistration.remove();
+            // Search Function
+            searchView = findViewById(R.id.searchView);
+            // some device will make the hint text as edit
+            searchView.clearFocus();
+
+            // Search
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String searchText) {
+                    //list.clear();
+                    retrieveData(searchText.toLowerCase());
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    retrieveData(newText.toLowerCase());
+                    return false;
                 }
             });
+
+            retrieveData("");
         }
 
         // Swipe to Edit
@@ -187,5 +182,53 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         return true;
+    }
+
+    // Retrieve Data
+    private void retrieveData(String text) {
+        // The SnapshortListener gives us all the data inside that post
+        listenerRegistration = query.addSnapshotListener(MainActivity.this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                list.clear();
+                for (DocumentChange doc : value.getDocumentChanges()){
+                    if (doc.getType() == DocumentChange.Type.ADDED){
+
+                        String postId = doc.getDocument().getId();
+                        Post post = doc.getDocument().toObject(Post.class).withId(postId);
+                        String postUserId = doc.getDocument().getString("user");
+
+                        if (!text.isEmpty() && post.getCaption().toLowerCase().contains(text)){
+                            loadPosts(postId, post, postUserId);
+                        }else if (text.isEmpty()){
+                            loadPosts(postId, post, postUserId);
+                        }
+                    }else{
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+                listenerRegistration.remove();
+            }
+        });
+    }
+
+    private void loadPosts(String postId, Post post, String postUserId){
+
+        firestore.collection("Users").document(postUserId).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()){
+                            Users users = task.getResult().toObject(Users.class);
+                            usersList.add(users);
+                            list.add(post);
+
+                            // Set the data to the adapter
+                            adapter.notifyDataSetChanged();
+                        }else{
+                            Toast.makeText(MainActivity.this, task.getException().getMessage() , Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

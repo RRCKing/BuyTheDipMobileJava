@@ -8,11 +8,15 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,11 +46,20 @@ public class AddPostActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private String currentUserId;
     private Toolbar postToolbar;
+    private long lastClickTime = 1000;
+
+    // Store Spinner
+    private Spinner storeSpinner;
+    String[] store = {"Walmart", "Superstore", "No frill"};
+    private String selectedStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_post);
+
+        // Store Spinner
+        storeSpinner = findViewById(R.id.store_spinner);
 
         // Retrieve the components of the layout
         mAddPostBtn = findViewById(R.id.save_post_btn);
@@ -65,6 +78,25 @@ public class AddPostActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         currentUserId = auth.getCurrentUser().getUid();
 
+        // Dropdown Box
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddPostActivity.this, android.R.layout.simple_spinner_item, store);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        storeSpinner.setAdapter(adapter);
+
+        storeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedStore = parent.getItemAtPosition(position).toString();
+                Toast.makeText(AddPostActivity.this, selectedStore, Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         // When click the image, trigger Image Cropper
         mPostImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +114,12 @@ public class AddPostActivity extends AppCompatActivity {
         mAddPostBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // preventing double, using threshold of 1000 ms
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000){
+                    return;
+                }
+
                 // Show Progress Bar
                 mProgressBar.setVisibility(View.VISIBLE);
                 // Set the Caption Text as a variable
@@ -108,6 +146,7 @@ public class AddPostActivity extends AppCompatActivity {
                                         postMap.put("image" , uri.toString());
                                         postMap.put("user" , currentUserId);
                                         postMap.put("caption" , caption);
+                                        postMap.put("store", selectedStore);
                                         postMap.put("time" , FieldValue.serverTimestamp());
 
                                         // Put the postMap to the firestore.collection.add method, to the Posts table
