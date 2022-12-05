@@ -71,19 +71,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/profile_pic"
                 app:srcCompat="@drawable/rectangle" />
 
-            <!-- Caption Text View -->
-            <TextView
-                android:id="@+id/caption_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="Caption"
-                android:textColor="@color/black"
-                android:textSize="15sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/user_post" />
-
             <!-- Like icon button -->
             <ImageView
                 android:id="@+id/like_btn"
@@ -92,7 +79,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/caption_tv"
+                app:layout_constraintTop_toBottomOf="@+id/user_post"
                 app:srcCompat="@drawable/before_liked" />
 
             <!-- Like Counts -->
@@ -108,6 +95,32 @@
                 app:layout_constraintStart_toEndOf="@+id/like_btn"
                 app:layout_constraintTop_toTopOf="@+id/like_btn" />
 
+            <!-- Caption Text View -->
+            <TextView
+                android:id="@+id/caption_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Caption"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/like_btn" />
+
+            <!-- Store Text View -->
+            <TextView
+                android:id="@+id/store_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Store"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/caption_tv" />
+
             <!-- Comments button -->
             <ImageView
                 android:id="@+id/comments_post"
@@ -115,7 +128,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/like_count_tv"
                 app:layout_constraintTop_toTopOf="@+id/like_count_tv"
                 app:srcCompat="@drawable/comments" />

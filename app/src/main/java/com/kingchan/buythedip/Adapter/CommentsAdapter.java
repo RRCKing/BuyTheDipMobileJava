@@ -36,12 +36,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private List<Users> usersList;
     private List<Comments> commentsList;
 
-    /*public CommentsAdapter(Activity context , List<Comments> commentsList, List<Users> usersList){
-        this.context = context;
-        this.commentsList = commentsList;
-        this.usersList = usersList;
-    }*/
-
     public CommentsAdapter(Activity context , List<Comments> commentsList, List<Users> usersList){
         this.context = context;
         this.commentsList = commentsList;

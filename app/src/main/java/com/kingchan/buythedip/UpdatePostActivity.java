@@ -10,9 +10,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,12 +63,20 @@ public class UpdatePostActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private String userId;
 
-    private long lastClickTime = 1000;
+    private final long lastClickTime = 1000;
+
+    // Store Spinner
+    private Spinner storeSpinner;
+    String[] store = {"Walmart", "Superstore", "No frill"};
+    private String selectedStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_post);
+
+        // Store Spinner
+        storeSpinner = findViewById(R.id.store_spinner);
 
         // Firestore
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -79,6 +90,24 @@ public class UpdatePostActivity extends AppCompatActivity {
         editButton = findViewById(R.id.edit_post_btn);
         editCaption = findViewById(R.id.caption_text);
         postPicture = findViewById(R.id.user_post);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(UpdatePostActivity.this, android.R.layout.simple_spinner_item, store);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        storeSpinner.setAdapter(adapter);
+
+        storeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedStore = parent.getItemAtPosition(position).toString();
+                Toast.makeText(UpdatePostActivity.this, selectedStore, Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // Retrieve the profile data
         firestore.collection("Users").document(userId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -135,6 +164,8 @@ public class UpdatePostActivity extends AppCompatActivity {
 
                 // Get the changed edited text
                 String caption = editCaption.getText().toString();
+                selectedStore = storeSpinner.getSelectedItem().toString();
+                //postImageUri = Uri.parse(uPostImage);
 
                 if (postImageUri != null){
                     // Use storage reference to make the post reference
@@ -153,6 +184,7 @@ public class UpdatePostActivity extends AppCompatActivity {
                                         postMap.put("image" , uri.toString());
                                         postMap.put("user" , userId);
                                         postMap.put("caption" , caption);
+                                        postMap.put("store", selectedStore);
                                         postMap.put("time" , FieldValue.serverTimestamp());
 
                                         // Put the postMap to the firestore.collection.add method, to the Posts table

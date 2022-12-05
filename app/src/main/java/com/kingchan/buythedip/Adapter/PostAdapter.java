@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -82,6 +83,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         Post post = mList.get(position);
         holder.setPostPic(post.getImage());
         holder.setPostCaption(post.getCaption());
+        holder.setStoreInfo(post.getStore());
 
         long milliseconds = post.getTime().getTime();
         String date  = DateFormat.format("MM/dd/yyyy" , new Date(milliseconds)).toString();
@@ -112,6 +114,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                         }
                     }
                 });
+            }
+        });
+
+        // Set clickable caption
+        holder.postCaption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Creates an Intent that will load a map of San Francisco
+                Uri gmmIntentUri = Uri.parse("geo:37.7749,-122.4194");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                context.startActivity(mapIntent);
             }
         });
 
@@ -232,7 +246,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     public class PostViewHolder extends RecyclerView.ViewHolder{
         ImageView postPic , commentsPic , likePic;
         CircleImageView profilePic ;
-        TextView postUsername , postDate , postCaption , postLikes;
+        TextView postUsername , postDate , postCaption , postLikes, storeSelected;
         // Delete - 13
         ImageButton deleteBtn;
         // Retrieve Posts -8
@@ -248,6 +262,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             commentsPic = mView.findViewById(R.id.comments_post);
             // Delete - 13
             deleteBtn= mView.findViewById(R.id.delete_btn);
+
         }
 
         // Like Feature - 9
@@ -278,6 +293,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         public void setPostCaption(String caption){
             postCaption = mView.findViewById(R.id.caption_tv);
             postCaption.setText(caption);
+        }
+        public void setStoreInfo(String store){
+            storeSelected = mView.findViewById(R.id.store_tv);
+            storeSelected.setText(store);
         }
         // Retrieve Posts -8 end
     }
